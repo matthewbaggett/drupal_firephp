@@ -77,6 +77,8 @@ function firephp_time_output(){
   $firephp->group("FirePHP Timing");
   foreach($firephp_time_checkpoints as $firephp_time_checkpoint){
     list($microtime, $label) = $firephp_time_checkpoint;
+    $start = (!isset($start) || $microtime < $start) ? $microtime : $start;
+    $end   = (!isset($end)   || $microtime > $end)   ? $microtime : $end;
     if(isset($last_microtime)){
       $display_microtime = $microtime - $last_microtime;
       $display_microtime = number_format($display_microtime, 4);
@@ -86,5 +88,6 @@ function firephp_time_output(){
     $firephp->log("{$display_microtime} - {$label}");
     $last_microtime = $microtime;
   }
+  $firephp->log("Total execution time: " . number_format($end - $start, 4));
   $firephp->groupEnd();
 }
