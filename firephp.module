@@ -2,10 +2,12 @@
 
 require_once(dirname(__FILE__) ."/lib/FirePHPCore/lib/FirePHPCore/FirePHP.class.php");
 
+/**
+ *  Implements hook_init().
+ */
 function firephp_init(){
   global $firephp_time_checkpoints;
   $firephp_time_checkpoints = array();
-
   firephp_time_checkpoint("php_init", $_SERVER['REQUEST_TIME_FLOAT']);
   firephp_time_checkpoint("hook_init");
   firephp_log("Init");
@@ -51,10 +53,19 @@ function _firephp_get_severity_term($severity_id){
   return $severities[$severity_id];
 }
 
+/**
+ * @param $message
+ * @param array $variables
+ * @return true
+ */
 function firephp_log($message, $variables = array()){
   return firephp_get_instance()->log(t($message, $variables));
 }
 
+/**
+ * @param $label
+ * @param null $time
+ */
 function firephp_time_checkpoint($label, $time = null){
   global $firephp_time_checkpoints;
   if(!$time){
@@ -71,6 +82,9 @@ function firephp_exit($destination = NULL) {
   firephp_time_output();
 }
 
+/**
+ * Display time logging to FirePHP
+ */
 function firephp_time_output(){
   global $firephp_time_checkpoints;
   $firephp = firephp_get_instance();
