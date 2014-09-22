@@ -1,18 +1,22 @@
 <?php
 
+require_once(dirname(__FILE__) ."/lib/FirePHPCore/lib/FirePHPCore/FirePHP.class.php");
 
 function firephp_init(){
-  require_once("./lib/FirePHPCore/lib/FirePHPCore/FirePHP.class.php");
-  global $firephp_instance;
-  $firephp_instance = new FirePHP();
+  global $firephp_time_checkpoints;
+  $firephp_time_checkpoints = array();
 
+  firephp_time_checkpoint("php_init", $_SERVER['REQUEST_TIME_FLOAT']);
+  firephp_time_checkpoint("hook_init");
+  firephp_log("Init");
 }
 
 /**
  * @return FirePHP
  */
 function firephp_get_instance(){
-  return new \FirePHP();
+  $firephp = FirePHP::getInstance(true);
+  return $firephp;
 }
 
 /**
@@ -47,6 +51,40 @@ function _firephp_get_severity_term($severity_id){
   return $severities[$severity_id];
 }
 
-function firephp_log($message, $variables = null){
+function firephp_log($message, $variables = array()){
   return firephp_get_instance()->log(t($message, $variables));
+}
+
+function firephp_time_checkpoint($label, $time = null){
+  global $firephp_time_checkpoints;
+  if(!$time){
+    $time = microtime(true);
+  }
+  $firephp_time_checkpoints[] = [$time, $label];
+}
+
+/**
+ *  Implements hook_exit().
+ */
+function firephp_exit($destination = NULL) {
+  firephp_time_checkpoint('hook_exit');
+  firephp_time_output();
+}
+
+function firephp_time_output(){
+  global $firephp_time_checkpoints;
+  $firephp = firephp_get_instance();
+  $firephp->group("FirePHP Timing");
+  foreach($firephp_time_checkpoints as $firephp_time_checkpoint){
+    list($microtime, $label) = $firephp_time_checkpoint;
+    if(isset($last_microtime)){
+      $display_microtime = $microtime - $last_microtime;
+      $display_microtime = number_format($display_microtime, 4);
+    }else{
+      $display_microtime = "begin";
+    }
+    $firephp->log("{$display_microtime} - {$label}");
+    $last_microtime = $microtime;
+  }
+  $firephp->groupEnd();
 }
