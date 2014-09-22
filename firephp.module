@@ -63,6 +63,15 @@ function firephp_log($message, $variables = array()){
 }
 
 /**
+ * @param $message
+ * @param array $variables
+ * @return true
+ */
+function firephp_info($message, $variables = array()){
+  return firephp_get_instance()->info(t($message, $variables));
+}
+
+/**
  * @param $label
  * @param null $time
  */
