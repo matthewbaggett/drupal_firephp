@@ -1,0 +1,6 @@
+name = FirePHP
+description = Debugging using FirePHP
+package = Development
+core = 7.x
+
+

@@ -1,0 +1,52 @@
+<?php
+
+
+function firephp_init(){
+  require_once("./lib/FirePHPCore/lib/FirePHPCore/FirePHP.class.php");
+  global $firephp_instance;
+  $firephp_instance = new FirePHP();
+
+}
+
+/**
+ * @return FirePHP
+ */
+function firephp_get_instance(){
+  return new \FirePHP();
+}
+
+/**
+ * Implements hook_watchdog().
+ *
+ * Note: Some values may be truncated to meet database column size restrictions.
+ */
+function firephp_watchdog(array $log_entry) {
+  if(count($log_entry['variables'])){
+    $message = t($log_entry['message'], $log_entry['variables']);
+  }else{
+    $message = t($log_entry['message']);
+  }
+
+  $type = substr($log_entry['type'], 0, 50);
+  $severity = _firephp_get_severity_term($log_entry['severity']);
+  firephp_log("WATCHDOG ({$severity}) $type: {$message}");
+}
+
+function _firephp_get_severity_term($severity_id){
+  $severities = array(
+    WATCHDOG_DEBUG     => 'Debug',
+    WATCHDOG_INFO      => 'Info',
+    WATCHDOG_NOTICE    => 'Notice',
+    WATCHDOG_WARNING   => 'Warning',
+    WATCHDOG_ERROR     => 'Error',
+    WATCHDOG_CRITICAL  => 'Critical',
+    WATCHDOG_ALERT     => 'Alert',
+    WATCHDOG_EMERGENCY => 'Emergency',
+  );
+
+  return $severities[$severity_id];
+}
+
+function firephp_log($message, $variables = null){
+  return firephp_get_instance()->log(t($message, $variables));
+}
