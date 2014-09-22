@@ -1,11 +1,19 @@
 <?php
 
-require_once(dirname(__FILE__) ."/lib/FirePHPCore/lib/FirePHPCore/FirePHP.class.php");
+if(!defined("FIREPHP_ENABLED")){
+  define("FIREPHP_ENABLED", true);
+}
+if(FIREPHP_ENABLED) {
+  require_once(dirname(__FILE__) . "/lib/FirePHPCore/lib/FirePHPCore/FirePHP.class.php");
+}
 
 /**
  *  Implements hook_init().
  */
 function firephp_init(){
+  if(!FIREPHP_ENABLED){
+    return false;
+  }
   global $firephp_time_checkpoints;
   $firephp_time_checkpoints = array();
   firephp_time_checkpoint("php_init", $_SERVER['REQUEST_TIME_FLOAT']);
@@ -27,6 +35,9 @@ function firephp_get_instance(){
  * Note: Some values may be truncated to meet database column size restrictions.
  */
 function firephp_watchdog(array $log_entry) {
+  if(!FIREPHP_ENABLED){
+    return false;
+  }
   if(count($log_entry['variables'])){
     $message = t($log_entry['message'], $log_entry['variables']);
   }else{
@@ -59,6 +70,9 @@ function _firephp_get_severity_term($severity_id){
  * @return true
  */
 function firephp_log($message, $variables = array()){
+  if(!FIREPHP_ENABLED){
+    return false;
+  }
   return firephp_get_instance()->log(t($message, $variables));
 }
 
@@ -68,6 +82,9 @@ function firephp_log($message, $variables = array()){
  * @return true
  */
 function firephp_info($message, $variables = array()){
+  if(!FIREPHP_ENABLED){
+    return false;
+  }
   return firephp_get_instance()->info(t($message, $variables));
 }
 
@@ -76,6 +93,9 @@ function firephp_info($message, $variables = array()){
  * @param null $time
  */
 function firephp_time_checkpoint($label, $time = null){
+  if(!FIREPHP_ENABLED){
+    return false;
+  }
   global $firephp_time_checkpoints;
   if(!$time){
     $time = microtime(true);
@@ -87,6 +107,9 @@ function firephp_time_checkpoint($label, $time = null){
  *  Implements hook_exit().
  */
 function firephp_exit($destination = NULL) {
+  if(!FIREPHP_ENABLED){
+    return false;
+  }
   firephp_time_checkpoint('hook_exit');
   firephp_time_output();
 }
