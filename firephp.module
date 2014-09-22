@@ -25,8 +25,12 @@ function firephp_init(){
  * @return FirePHP
  */
 function firephp_get_instance(){
-  $firephp = FirePHP::getInstance(true);
-  return $firephp;
+  global $firephp_instance;
+  if(!$firephp_instance){
+    $firephp_instance = FirePHP::getInstance(true);
+    $firephp_instance->setEnabled(FIREPHP_ENABLED);
+  }
+  return $firephp_instance;
 }
 
 /**
@@ -107,10 +111,21 @@ function firephp_time_checkpoint($label, $time = null){
  *  Implements hook_exit().
  */
 function firephp_exit($destination = NULL) {
+  _firephp_end();
+}
+
+/**
+ * Implements hook_footer().
+ */
+function firephp_footer(){
+
+}
+
+function _firephp_end(){
   if(!FIREPHP_ENABLED){
     return false;
   }
-  firephp_time_checkpoint('hook_exit');
+  firephp_time_checkpoint('hook_footer');
   firephp_time_output();
 }
 
