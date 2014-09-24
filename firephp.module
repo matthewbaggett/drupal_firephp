@@ -50,7 +50,10 @@ function firephp_watchdog(array $log_entry) {
 
   $type = substr($log_entry['type'], 0, 50);
   $severity = _firephp_get_severity_term($log_entry['severity']);
-  firephp_log("WATCHDOG ({$severity}) $type: {$message}");
+  $firephp = firephp_get_instance();
+  if(!headers_sent($Filename, $Linenum)){
+    $firephp->log("WATCHDOG ({$severity}) $type: {$message}");
+  }
 }
 
 function _firephp_get_severity_term($severity_id){
@@ -107,26 +110,19 @@ function firephp_time_checkpoint($label, $time = null){
   $firephp_time_checkpoints[] = [$time, $label];
 }
 
-/**
- *  Implements hook_exit().
- */
-function firephp_exit($destination = NULL) {
-  _firephp_end();
-}
-
-/**
- * Implements hook_footer().
- */
-function firephp_footer(){
-
-}
-
 function _firephp_end(){
+  die("Firephp end");
   if(!FIREPHP_ENABLED){
     return false;
   }
   firephp_time_checkpoint('hook_footer');
   firephp_time_output();
+  _firephp_flush();
+}
+
+function _firephp_flush(){
+  $firephp = firephp_get_instance();
+  unset($firephp);
 }
 
 /**
