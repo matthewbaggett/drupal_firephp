@@ -11,7 +11,7 @@ if(FIREPHP_ENABLED) {
  *  Implements hook_init().
  */
 function firephp_init(){
-  if(!FIREPHP_ENABLED){
+  if(!FIREPHP_ENABLED || php_sapi_name() == 'cli'){
     return false;
   }
   global $firephp_time_checkpoints;
